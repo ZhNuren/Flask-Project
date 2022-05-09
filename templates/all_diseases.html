@@ -1,0 +1,416 @@
+{% import "bootstrap/wtf.html" as wtf %}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<!DOCTYPE html>
+<html>
+<title>Diseases</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{{url_for('.static', filename='table.css')}}">
+<link rel="stylesheet" href="{{url_for('.static', filename='form.css')}}">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<style>
+body,h1,h2,h3,h4,h5,h6 {font-family: "Raleway", sans-serif}
+</style>
+{% if  editmode %}
+<body onload="editingmode()", class="w3-light-grey w3-content" style="max-width:1600px">
+{%else%}
+<body onload="loading()", class="w3-light-grey w3-content" style="max-width:1600px">
+{%endif%}
+
+<!-- Sidebar/menu -->
+{% include 'sidebar.html' %}
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- !PAGE CONTENT! -->
+<div class="w3-main" style="margin-left:300px">
+
+  <!-- Header -->
+{% include 'header.html' %}
+
+  <!-- First Photo Grid-->
+   <!-- Pagination -->
+   <div class="w3-center w3-padding-32">
+    <div class="w3-bar">
+
+     <button class="w3-button w3-black" id = "allbutton" onclick="all_open()">All Diseases </button>
+     <button class="w3-button w3-white" id = "alldiscbutton" onclick="all_disc_open()">Discovery Information</button>
+     {% if doctorcheck==true %}
+     <button class="w3-button w3-white" id = "specsbutton" onclick="spec_open()">Specialized</button>
+     {% endif %}
+
+    </div>
+  </div>
+  <div class="w3-row-padding" id="all">
+
+    <div class="table-responsive">
+        <table class="styled-table">
+        <thead>
+             <tr>
+                 <th>Disease Code</th>
+                 <th>Pathogen</th>
+                 <th>Description</th>
+                 <th>Disease Type</th>
+
+             </tr>
+        </thead>
+            {%
+                for record in diseases
+
+            %}
+
+                <tr>
+                    <td>
+                        {{record.disease_code}}
+                    </td>
+                    <td>
+                        {{record.pathogen}}
+                    </td>
+                    <td>
+                        {{record.description}}
+                    </td>
+                    <td>
+                        {{record.dtype}}
+                    </td>
+
+                </tr>
+            {% endfor %}
+        </table>
+
+      </div>
+  </div>
+  <div class="w3-row-padding" id="alldisc">
+
+    <div class="table-responsive">
+        <table class="styled-table">
+        <thead>
+             <tr>
+                <th>Disease code</th>
+                <th>Discovered Country</th>
+                <th>First Discovered Date</th>
+                {%if doctorcheck==true%}
+                <th>Delete</th>
+                {%endif%}
+             </tr>
+        </thead>
+            {%
+                for record in discovery
+
+            %}
+
+                <tr>
+                    <td>
+                        {{record.disease_code}}
+
+                    </td>
+                    <td>
+                      {{record.cname}}
+                    </td>
+                    <td>
+                        {{record.first_enc_date}}
+                    </td>
+                    {%if doctorcheck==true%}
+                    <td>
+                        <form action="/discovery/delete/{{record.disease_code}}/{{record.cname}}" method="POST">
+                            <button type="submit" name="delete">Delete</button>
+                        </form>
+                    </td>
+                    {%endif%}
+
+                </tr>
+            {% endfor %}
+        </table>
+
+      </div>
+  </div>
+  {% if doctorcheck==true %}
+  <div class="w3-row-padding" id="spec">
+    <div class="w3-center w3-padding-32">
+        <div class="w3-bar">
+
+         <button class="w3-button w3-white" id = "viewdiseasebutton" onclick="viewdis_open()">View</button>
+         <button class="w3-button w3-white" id = "adddiseasebutton" onclick="adddis_open()">Add</button>
+         <button class="w3-button w3-white" id = "adddiscoverybutton" onclick="adddscv_open()">New Discovery</button>
+
+
+        </div>
+      </div>
+    <div class="w3-row-padding" id="viewdisease">
+    <div class="table-responsive">
+        <table class="styled-table">
+        <thead>
+             <tr>
+                 <th>Disease Code</th>
+                 <th>Pathogen</th>
+                 <th>Description</th>
+                 <th>Disease Type</th>
+                 <th>Edit</th>
+             </tr>
+        </thead>
+            {%
+                for record in specialized
+
+            %}
+
+                <tr>
+                    <td>
+                        {{record.disease_code}}
+                    </td>
+                    <td>
+                        {{record.pathogen}}
+                    </td>
+                    <td>
+                        {{record.description}}
+                    </td>
+                    <td>
+                        {{record.dtype}}
+                    </td>
+                    <td>
+                        <form action="/diseases/edit/{{record.disease_code}}" method="POST">
+                            <button type="submit" name="edit">Edit</button>
+                        </form>
+                    </td>
+
+                </tr>
+            {% endfor %}
+        </table>
+
+      </div>
+    {% if editmode %}
+        <div class="formbg-outer">
+
+            <div class="formbg">
+              <div class="formbg-inner padding-horizontal--48">
+
+                <span class="padding-bottom--15">Edit Disease</span>
+                <form method="POST" action="/updatedisease" id="stripe-login">
+                  <div class="field padding-bottom--24">
+                    {{ wtf.form_field(editform.disease_code, readonly="readonly") }}
+                  </div>
+                  <div class="field padding-bottom--24">
+                    {{ wtf.form_field(editform.pathogen) }}
+                  </div>
+                  <div class="field padding-bottom--24">
+                    {{ wtf.form_field(editform.description) }}
+                  </div>
+                  <div class="field padding-bottom--24">
+                    {{ wtf.form_field(editform.id) }}
+                  </div>
+                  <div class="field padding-bottom--24">
+                    <input type="submit" name="submit" value="Update">
+                  </div>
+
+                </form>
+                <form method="POST" action="/diseases" id="stripe-login">
+                    <div class="field padding-bottom--24">
+                        <input type="submit" name="submit" value="Cancel">
+                    </div>
+                </form>
+              </div>
+            </div>
+
+          </div>
+
+    {%endif%}
+</div>
+    <div class="w3-row-padding" id="adddisease">
+        <div class="formbg-outer" id = "add">
+
+            <div class="formbg">
+              <div class="formbg-inner padding-horizontal--48">
+
+                <span style="width: 100%;text-align: center" class="padding-bottom--15">Add New Disease</span>
+                <form method="POST" action="/add_disease" id="stripe-login">
+                  <div class="field padding-bottom--24">
+                    {{ wtf.form_field(form.disease_code) }}
+                  </div>
+                  <div class="field padding-bottom--24">
+                    {{ wtf.form_field(form.pathogen) }}
+                </div>
+                  <div class="field padding-bottom--24">
+                    {{ wtf.form_field(form.description) }}
+                </div>
+                  <div class="field padding-bottom--24">
+                    {{ wtf.form_field(form.id) }}
+                </div>
+
+                  <div class="field padding-bottom--24">
+                    <input type="submit" name="submit" value="Add">
+                  </div>
+                </form>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="w3-row-padding" id="adddiscovery">
+            <div class="formbg-outer" id = "add">
+
+                <div class="formbg">
+                  <div class="formbg-inner padding-horizontal--48">
+
+                    <span style="width: 100%;text-align: center" class="padding-bottom--15">Add Discovery Info</span>
+                    <form method="POST" action="/add_discovery" id="stripe-login">
+                      <div class="field padding-bottom--24">
+                        {{ wtf.form_field(form1.disease_code) }}
+                      </div>
+                      <div class="field padding-bottom--24">
+                        {{ wtf.form_field(form1.cname) }}
+                    </div>
+                      <div class="field padding-bottom--24">
+                        {{ wtf.form_field(form1.first_enc_date) }}
+                    </div>
+
+                      <div class="field padding-bottom--24">
+                        <input type="submit" name="submit" value="Add">
+                      </div>
+                    </form>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+  </div>
+
+  {% endif %}
+
+
+
+
+
+
+
+  <!-- Footer -->
+
+
+{%if doctorcheck == true%}
+
+<script>
+// Script to open and close sidebar
+
+
+function loading(){
+    all_open();
+    viewdis_open();
+}
+function editingmode(){
+    spec_open();
+    viewdis_open();
+}
+function all_disc_open(){
+  document.getElementById("alldisc").style.display = "block";
+  document.getElementById("all").style.display = "none";
+  document.getElementById("spec").style.display = "none";
+
+  document.getElementById("alldiscbutton").className = "w3-button w3-black";
+  document.getElementById("allbutton").className = "w3-button w3-white";
+  document.getElementById("specsbutton").className = "w3-button w3-white";
+}
+function spec_open() {
+    document.getElementById("all").style.display = "none";
+    document.getElementById("spec").style.display = "block";
+    document.getElementById("alldisc").style.display = "none";
+
+    document.getElementById("allbutton").className = "w3-button w3-white";
+    document.getElementById("specsbutton").className = "w3-button w3-black";
+    document.getElementById("alldiscbutton").className = "w3-button w3-white";
+}
+function all_open() {
+    document.getElementById("all").style.display = "block";
+    document.getElementById("alldisc").style.display = "none";
+    document.getElementById("spec").style.display = "none";
+
+    document.getElementById("allbutton").className = "w3-button w3-black";
+    document.getElementById("specsbutton").className = "w3-button w3-white";
+    document.getElementById("alldiscbutton").className = "w3-button w3-white";
+}
+function viewdis_open() {
+    document.getElementById("viewdisease").style.display = "block";
+    document.getElementById("adddisease").style.display = "none";
+    document.getElementById("adddiscovery").style.display = "none";
+
+    document.getElementById("viewdiseasebutton").className = "w3-button w3-black";
+    document.getElementById("adddiseasebutton").className = "w3-button w3-white";
+    document.getElementById("adddiscoverybutton").className = "w3-button w3-white";
+
+}
+function adddis_open() {
+    document.getElementById("viewdisease").style.display = "none";
+    document.getElementById("adddisease").style.display = "block";
+    document.getElementById("adddiscovery").style.display = "none";
+    document.getElementById("viewdiseasebutton").className = "w3-button w3-white";
+    document.getElementById("adddiseasebutton").className = "w3-button w3-black";
+    document.getElementById("adddiscoverybutton").className = "w3-button w3-white";
+
+}
+function adddscv_open() {
+    document.getElementById("viewdisease").style.display = "none";
+    document.getElementById("adddisease").style.display = "none";
+    document.getElementById("adddiscovery").style.display = "block";
+    document.getElementById("viewdiseasebutton").className = "w3-button w3-white";
+    document.getElementById("adddiseasebutton").className = "w3-button w3-white";
+    document.getElementById("adddiscoverybutton").className = "w3-button w3-black";
+
+
+}
+
+</script>
+{%else%}
+<script>
+  // Script to open and close sidebar
+
+
+  function loading(){
+      all_open();
+      viewdis_open();
+  }
+
+  function all_disc_open(){
+    document.getElementById("alldisc").style.display = "block";
+    document.getElementById("all").style.display = "none";
+
+
+    document.getElementById("alldiscbutton").className = "w3-button w3-black";
+    document.getElementById("allbutton").className = "w3-button w3-white";
+
+  }
+
+  function all_open() {
+      document.getElementById("all").style.display = "block";
+      document.getElementById("alldisc").style.display = "none";
+
+
+      document.getElementById("allbutton").className = "w3-button w3-black";
+      document.getElementById("specsbutton").className = "w3-button w3-white";
+
+  }
+
+  </script>
+{%endif%}
+
+</body>
+{% include 'footer.html' %}
+</html>

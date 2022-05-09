@@ -1,0 +1,165 @@
+
+{% import "bootstrap/wtf.html" as wtf %}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<!DOCTYPE html>
+<html>
+<title>Login</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{{url_for('.static', filename='form.css')}}">
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<style>
+  body,h1,h2,h3,h4,h5,h6 {font-family: "Raleway", sans-serif}
+  </style>
+<body onload="doctor_open()" class="w3-light-grey w3-content" style="max-width:1600px">
+{% if formiscomplete==false %}
+<div class="formbg-outer">
+<div class="formbg">
+      <div class="formbg-inner padding-horizontal--48">
+        
+        <span style="width: 100%;text-align: center" class="padding-bottom--15">Registration</span>
+        <form method="POST" action="/signup" id="stripe-login">
+    		<div class="field padding-bottom--24">
+				{{ form.hidden_tag() }}
+			  </div>
+			<div class="field padding-bottom--24">
+				{{ wtf.form_field(form.name) }}
+			  </div>
+			  <div class="field padding-bottom--24">
+				{{ wtf.form_field(form.surname) }}
+			  </div>
+			  <div class="field padding-bottom--24">
+				{{ wtf.form_field(form.sex) }}
+			  </div>
+			  <div class="field padding-bottom--24">
+				{{ wtf.form_field(form.salary) }}
+			  </div>
+			  <div class="field padding-bottom--24">
+				{{ wtf.form_field(form.cname) }}
+			  </div>
+			  <div class="field padding-bottom--24">
+				{{ wtf.form_field(form.email) }}
+			  </div>
+			  <div class="field padding-bottom--24">
+				{{ wtf.form_field(form.password) }}
+			  </div>
+			  <div class="field padding-bottom--24">
+				{{ wtf.form_field(form.phone) }}
+			  </div>
+
+			  <div class="field padding-bottom--24">
+				<input type="submit" name="submit" value="Continue">
+				
+			  </div>
+  </form>
+  <form action="/login" id="stripe-login">
+	<div class="field padding-bottom--24">
+	  <input type="submit" name="submit" value="Login">
+	</div>
+	</form>
+	<form action="/" id="stripe-login">
+		<div class="field padding-bottom--24">
+		  <input type="submit" name="submit" value="Back">
+		</div>
+	  </form>
+</div>
+</div>
+</div>
+{%else%}
+<div class="formbg-outer">
+	<div class="formbg">
+		  <div class="formbg-inner padding-horizontal--48">
+			
+			<span style="width: 100%;text-align: center" class="padding-bottom--15">Registration</span>
+			<div class="w3-center w3-padding-32">
+				<div class="w3-bar">
+			  
+				 <button class="w3-button w3-white" id = "doctorbutton" onclick="doctor_open()">Doctor</button>
+				 <button class="w3-button w3-white" id = "servantbutton" onclick="servant_open()">Public Servant</button>
+			
+				</div>
+			  </div>
+			
+
+			<div id = "doctor">
+			<form method="POST" action="/finishregisterdoctor" id="stripe-login">
+				<div class="field padding-bottom--24">
+					
+					{{ wtf.form_field(form1.degree) }}
+				  </div>
+				  <div class="field padding-bottom--24">
+					
+					{{ wtf.form_field(form1.specs) }}
+				  </div>
+				  <div class="field padding-bottom--24">
+					<input type="submit" name="submit" value="Registrate">
+				  </div>
+	  </form>
+
+	  <form action="/" id="stripe-login">
+		<div class="field padding-bottom--24">
+		  <input type="submit" name="submit" value="Other Position">
+		</div>
+	  </form>
+	</div>
+
+	<div id = "servant">
+		<form method="POST" action="/finishregisterservant" id="stripe-login">
+			<div class="field padding-bottom--24">
+				{{ wtf.form_field(form2.department) }}
+			  </div>
+			  <div class="field padding-bottom--24">
+				<input type="submit" name="submit" value="Registrate">
+			  </div>
+  </form>
+
+  <form action="/" id="stripe-login">
+	<div class="field padding-bottom--24">
+	  <input type="submit" name="submit" value="Other Position">
+	</div>
+  </form>
+</div>
+	</div>
+	</div>
+	</div>
+{%endif%}
+<script>
+	// Script to open and close sidebar
+	
+	
+	function doctor_open() {
+		document.getElementById("doctor").style.display = "block";
+		document.getElementById("servant").style.display = "none";
+		document.getElementById("doctorbutton").className = "w3-button w3-black";
+		document.getElementById("servantbutton").className = "w3-button w3-white";
+
+	}
+	function servant_open(){
+		document.getElementById("doctor").style.display = "none";
+		document.getElementById("servant").style.display = "block";
+		document.getElementById("doctorbutton").className = "w3-button w3-white";
+		document.getElementById("servantbutton").className = "w3-button w3-black";
+	}
+	</script>
+</body>
+</html>

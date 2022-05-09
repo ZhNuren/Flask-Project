@@ -1,0 +1,66 @@
+<header id="portfolio">
+    <a href="#"><img src="/w3images/avatar_g2.jpg" style="width:65px;" class="w3-circle w3-right w3-margin w3-hide-large w3-hover-opacity"></a>
+    <span class="w3-button w3-hide-large w3-xxlarge w3-hover-text-grey" onclick="w3_open()"><i class="fa fa-bars"></i></span>
+    <div class="w3-container">
+    <h1><b>Welcome, Dear {{ name }}</b></h1>
+    <div class="w3-section w3-bottombar w3-padding-16">
+      <span class="w3-margin-right">Tables:</span>
+      
+      {% if moderator == true %}
+      {%if '/users' in request.url %}
+      <button class="w3-button w3-black">
+      {%else%}
+      <button class="w3-button w3-white">
+      {%endif%}
+      <a href="{{ url_for('users')}}">Users</a></button>
+
+      {%if '/countries' in request.url %}
+      <button class="w3-button w3-black">
+      {%else%}
+      <button class="w3-button w3-white">
+      {%endif%}
+      <a href="{{ url_for('countries')}}">Countries</a></button>
+
+      {%if '/disease_type' in request.url %}
+      <button class="w3-button w3-black">
+      {%else%}
+      <button class="w3-button w3-white">
+      {%endif%}
+      <a href="{{ url_for('disease_type')}}">Diseases</a></button>
+
+      {% else %}
+
+      {%if '/doctors' in request.url %}
+      <button class="w3-button w3-black">
+      {%else%}
+      <button class="w3-button w3-white">
+      {%endif%}
+      <a href="{{ url_for('doctors')}}">Doctors</a></button>
+
+      {%if '/servants' in request.url %}
+      <button class="w3-button w3-black">
+      {%else%}
+      <button class="w3-button w3-white">
+      {%endif%}
+      <a href="{{ url_for('servants')}}">Public Servants</a></button>
+
+      {%if '/diseases' in request.url %}
+      <button class="w3-button w3-black">
+      {%else%}
+      <button class="w3-button w3-white">
+      {%endif%}
+      <a href="{{ url_for('diseases')}}">Diseases</a></button>
+
+      {%if '/records' in request.url %}
+      <button class="w3-button w3-black">
+      {%else%}
+      <button class="w3-button w3-white">
+      {%endif%}
+      <a href="{{ url_for('records')}}">Records</a></button>
+
+      {%endif%}
+
+     
+    </div>
+    </div>
+  </header>

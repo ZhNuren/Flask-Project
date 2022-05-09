@@ -1,0 +1,496 @@
+{% import "bootstrap/wtf.html" as wtf %}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+<!DOCTYPE html>
+<html>
+<title>Records</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{{url_for('.static', filename='table.css')}}">
+<link rel="stylesheet" href="{{url_for('.static', filename='form.css')}}">
+
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<style>
+body,h1,h2,h3,h4,h5,h6 {font-family: "Raleway", sans-serif}
+.fix{
+      pointer-events: none;
+      touch-action: none;
+      font-size: 16px;
+      line-height: 28px;
+      padding: 8px 16px;
+      width: 100%;
+      min-height: 44px;
+      border: unset;
+      border-radius: 4px;
+      outline-color: rgb(84 105 212 / 0.5);
+      background-color: rgb(255, 255, 255);
+      box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, 
+                  rgba(0, 0, 0, 0) 0px 0px 0px 0px, 
+                  rgba(0, 0, 0, 0) 0px 0px 0px 0px, 
+                  rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, 
+                  rgba(0, 0, 0, 0) 0px 0px 0px 0px, 
+                  rgba(0, 0, 0, 0) 0px 0px 0px 0px, 
+                  rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+  
+}
+</style>
+{% if  editmode %}
+<body onload="editingmode()", class="w3-light-grey w3-content" style="max-width:1600px">
+{%else%}
+<body onload="loading()", class="w3-light-grey w3-content" style="max-width:1600px">
+{%endif%}
+
+<!-- Sidebar/menu -->
+{% include 'sidebar.html' %}
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- !PAGE CONTENT! -->
+<div class="w3-main" style="margin-left:300px">
+
+  <!-- Header -->
+{% include 'header.html' %}
+
+  <!-- First Photo Grid-->
+   <!-- Pagination -->
+   <div class="w3-center w3-padding-32">
+    <div class="w3-bar">
+  
+     <button class="w3-button w3-black" id = "allbutton" onclick="all_open()">All Records</button>
+     {% if servantcheck==true %}
+     <button class="w3-button w3-white" id = "mybutton" onclick="my_open()">My Records</button>
+     {% endif %}
+
+    </div>
+  </div>
+  <div class="w3-row-padding" id="all">
+    <div class="w3-center w3-padding-32">
+      <div class="w3-bar">
+          
+       <button class="w3-button w3-black" id = "viewallrecsbutton" onclick="allrec_open()">All</button>   
+       <button class="w3-button w3-white" id = "groupcnamebutton" onclick="groupcname_open()">Group by Country</button>
+       <button class="w3-button w3-white" id = "groupdiscodebutton" onclick="groupdiscode_open()">Group by Disease code</button>
+
+  
+      </div>
+    </div>
+    <div class="w3-row-padding" id="allrecs">
+    <div class="table-responsive">
+        <table class="styled-table">
+        <thead>
+             <tr>
+                 <th>Owner</th>
+                 <th>Country</th>
+                 <th>Disease code</th>
+                 <th>Total Deaths</th>
+                 <th>Total Patients</th>
+                 <th>Death Rate</th>
+             </tr>
+        </thead>
+            {% 
+                for record in allrecords
+                    
+            %}
+            {% set rate = record.total_deaths/record.total_patients*100 %}
+
+                <tr>
+                    <td>
+                        {{record.email}}
+                    </td>
+                    <td>
+                        {{record.cname}}
+                    </td>
+                    <td>
+                        {{record.disease_code}}
+                    </td>
+                    <td>
+                        {{record.total_deaths}}
+                    </td>
+                    <td>
+                        {{record.total_patients}}
+                    </td>
+                    <td>
+                      {{'%0.3f'%rate|float}}%
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+      </div>
+  
+      
+        <div class="formbg">
+          
+            <form method="GET" action="/excel" id="stripe-login">
+        
+              <div class="field padding-bottom--24">
+                <input type="submit" name="submit" value="Generate Report">
+              </div>
+              
+            </form>
+          </div>
+        </div>
+
+        <div class="w3-row-padding" id="groupcname">
+          <div class="table-responsive">
+              <table class="styled-table">
+              <thead>
+                   <tr>
+                       <th>Country</th>
+                       <th>Total Patients</th>
+                       <th>Total Deaths</th>
+                       <th>Death Rate</th>
+                   </tr>
+              </thead>
+                  {% 
+                      for record in groupcname
+                      
+                          
+                  %}
+                  {% set rate = record.totaldes/record.totalpat*100 %}
+      
+                      <tr>
+                          <td>
+                              {{record.cname}}
+                          </td>
+                          <td>
+                              {{record.totalpat}}
+                          </td>
+                          <td>
+                              
+                              {{record.totaldes}}
+                          </td>
+                          <td>
+                            {{'%0.3f'%rate|float}}%
+                        </td>
+                      </tr>
+                  {% endfor %}
+              </table>
+      
+            </div>
+
+            </div>
+            <div class="w3-row-padding" id="groupdiscode">
+              <div class="table-responsive">
+                  <table class="styled-table">
+                  <thead>
+                       <tr>
+                           <th>Disease code</th>
+                           <th>Total Patients</th>
+                           <th>Total Deaths</th>
+                           <th>Death Rate</th>
+                       </tr>
+                  </thead>
+                      {% 
+                          for record in groupdiscode
+                              
+                      %}
+                      {% set rate = record.totaldes/record.totalpat*100 %}
+          
+                          <tr>
+                              <td>
+                                  {{record.disease_code}}
+                              </td>
+                              <td>
+                                  {{record.totalpat}}
+                              </td>
+                              <td>
+                                  {{record.totaldes}}
+                              </td>
+                              <td>
+                            
+                                  {{'%0.3f'%rate|float}}%
+                             
+                             </td>
+
+                          </tr>
+                      {% endfor %}
+                  </table>
+          
+                </div>
+    
+                </div>
+              
+       
+    
+  </div>
+  {% if servantcheck==true %}
+  <div class="w3-row-padding" id="my">
+    <div class="w3-center w3-padding-32">
+      <div class="w3-bar">
+          
+       <button class="w3-button w3-white" id = "viewrecbutton" onclick="viewrec_open()">View</button>   
+       <button class="w3-button w3-white" id = "addrecbutton" onclick="addrec_open()">Add</button>
+
+  
+      </div>
+    </div>
+    <div class="w3-row-padding" id="viewrecord">
+      <div class="table-responsive">
+          <table class="styled-table">
+          <thead>
+               <tr>
+                <th>Owner</th>
+                <th>Country</th>
+                <th>Disease code</th>
+                <th>Total Deaths</th>
+                <th>Total Patients</th>
+                <th>Death Rate</th>
+                <th>Edit</th>
+                <th>Delete</th>
+               </tr>
+          </thead>
+              {% 
+                  for record in myrecords
+                      
+              %}
+              {% set rate = record.total_deaths/record.total_patients*100 %}
+  
+                  <tr>
+                    <td>
+                      {{record.email}}
+                  </td>
+                  <td>
+                      {{record.cname}}
+                  </td>
+                  <td>
+                      {{record.disease_code}}
+                  </td>
+                  <td>
+                      {{record.total_deaths}}
+                  </td>
+                  <td>
+                      {{record.total_patients}}
+                  </td>
+                  <td>
+                            
+                    {{'%0.3f'%rate|float}}%
+               
+               </td>
+                  <td>
+                          <form action="/records/edit/{{record.cname}}/{{record.disease_code}}" method="POST">
+                              <button type="submit" name="edit">Edit</button>
+                          </form>
+                      </td>
+                      <td>
+                        <form action="/records/delete/{{record.cname}}/{{record.disease_code}}" method="POST">
+                            <button type="submit" name="edit">Delete</button>
+                        </form>
+                    </td>
+  
+                  </tr>
+              {% endfor %}
+          </table>
+  
+        </div>
+      {% if editmode %}
+          <div class="formbg-outer">
+      
+              <div class="formbg">
+                <div class="formbg-inner padding-horizontal--48">
+                  
+                  <span class="padding-bottom--15">Edit Record</span>
+                  <form method="POST" action="/updaterecord" id="stripe-login">
+                    <div class="field padding-bottom--24">
+                      {{ wtf.form_field(editform.email, class = 'fix') }}
+                    </div>
+                    <div class="field padding-bottom--24">
+                      {{ wtf.form_field(editform.cname, class = 'fix') }}
+                    </div>
+                    <div class="field padding-bottom--24">
+                      {{ wtf.form_field(editform.disease_code, class = 'fix') }}
+                    </div>
+                    <div class="field padding-bottom--24">
+                      {{ wtf.form_field(editform.total_deaths) }}
+                    </div>
+                    <div class="field padding-bottom--24">
+                      {{ wtf.form_field(editform.total_patients) }}
+                    </div>
+                    <div class="field padding-bottom--24">
+                      <input type="submit" name="submit" value="Update">
+                    </div>
+                    
+                  </form>
+                  <form method="POST" action="/records" id="stripe-login">
+                      <div class="field padding-bottom--24">
+                          <input type="submit" name="submit" value="Cancel">
+                      </div>
+                  </form>
+                </div>
+              </div>
+          
+            </div>
+          
+      {%endif%}
+  </div>
+  <div class="w3-row-padding" id="addrecord">
+    <div class="formbg-outer" id = "add">
+
+        <div class="formbg">
+          <div class="formbg-inner padding-horizontal--48">
+            
+            <span style="width: 100%;text-align: center" class="padding-bottom--15">Add New Record</span>
+            <form method="POST" action="/add_record" id="stripe-login">
+              <div class="field padding-bottom--24">
+                {{ wtf.form_field(form.email, readonly=True) }}
+              </div>
+              <div class="field padding-bottom--24">
+                {{ wtf.form_field(form.cname) }}
+            </div>
+              <div class="field padding-bottom--24">
+                {{ wtf.form_field(form.disease_code) }}
+            </div>
+              <div class="field padding-bottom--24">
+                {{ wtf.form_field(form.total_deaths) }}
+            </div>
+            <div class="field padding-bottom--24">
+              {{ wtf.form_field(form.total_patients) }}
+          </div>
+
+              <div class="field padding-bottom--24">
+                <input type="submit" name="submit" value="Add">
+              </div>
+            </form>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+
+ 
+
+
+
+
+  <!-- Footer -->
+  {% include 'footer.html' %}
+  
+
+
+<script>
+// Script to open and close sidebar
+
+function loading(){
+    allrec_open();
+}
+function editingmode(){
+    my_open();
+    viewrec_open();
+}
+ 
+
+function my_open() {
+    document.getElementById("all").style.display = "none";
+    document.getElementById("my").style.display = "block";
+
+    document.getElementById("allbutton").className = "w3-button w3-white";
+    document.getElementById("mybutton").className = "w3-button w3-black";
+    viewrec_open();
+}
+
+function allrec_open(){
+  document.getElementById("allrecs").style.display = "block";
+  document.getElementById("groupcname").style.display = "none";
+  document.getElementById("groupdiscode").style.display = "none";
+  document.getElementById("my").style.display = "none";
+
+  document.getElementById("viewallrecsbutton").className = "w3-button w3-black";
+  document.getElementById("groupcnamebutton").className = "w3-button w3-white";
+  document.getElementById("groupdiscodebutton").className = "w3-button w3-white";
+}
+
+function groupcname_open(){
+  document.getElementById("allrecs").style.display = "none";
+  document.getElementById("groupcname").style.display = "block";
+  document.getElementById("groupdiscode").style.display = "none";
+
+  document.getElementById("viewallrecsbutton").className = "w3-button w3-white";
+  document.getElementById("groupcnamebutton").className = "w3-button w3-black";
+  document.getElementById("groupdiscodebutton").className = "w3-button w3-white";
+}
+
+function groupdiscode_open(){
+  document.getElementById("allrecs").style.display = "none";
+  document.getElementById("groupcname").style.display = "none";
+  document.getElementById("groupdiscode").style.display = "block";
+
+  document.getElementById("viewallrecsbutton").className = "w3-button w3-white";
+  document.getElementById("groupcnamebutton").className = "w3-button w3-white";
+  document.getElementById("groupdiscodebutton").className = "w3-button w3-black";
+}
+
+function all_open() {
+    document.getElementById("all").style.display = "block";
+    document.getElementById("my").style.display = "none";
+
+    document.getElementById("allbutton").className = "w3-button w3-black";
+    document.getElementById("mybutton").className = "w3-button w3-white";
+     
+}
+
+function addrec_open() {
+    document.getElementById("viewrecord").style.display = "none";
+    document.getElementById("addrecord").style.display = "block";
+
+    document.getElementById("viewrecbutton").className = "w3-button w3-white";
+    document.getElementById("addrecbutton").className = "w3-button w3-black";
+
+}
+function viewrec_open() {
+    document.getElementById("viewrecord").style.display = "block";
+    document.getElementById("addrecord").style.display = "none";
+
+    document.getElementById("viewrecbutton").className = "w3-button w3-black";
+    document.getElementById("addrecbutton").className = "w3-button w3-white";
+
+}
+// function spec_open() {
+//     document.getElementById("all").style.display = "none";
+//     document.getElementById("spec").style.display = "block";
+//     document.getElementById("allbutton").className = "w3-button w3-white";
+//     document.getElementById("specsbutton").className = "w3-button w3-black";
+// }
+// function all_open() {
+//     document.getElementById("all").style.display = "block";
+//     document.getElementById("spec").style.display = "none";
+//     document.getElementById("allbutton").className = "w3-button w3-black";
+//     document.getElementById("specsbutton").className = "w3-button w3-white";
+//}
+
+
+// function adddscv_open() {
+//     document.getElementById("viewdisease").style.display = "none";
+//     document.getElementById("adddisease").style.display = "none";
+//     document.getElementById("adddiscovery").style.display = "block";
+//     document.getElementById("viewdiseasebutton").className = "w3-button w3-white";
+//     document.getElementById("adddiseasebutton").className = "w3-button w3-white";
+//     document.getElementById("adddiscoverybutton").className = "w3-button w3-black";
+// }
+ 
+
+</script>
+
+</body>
+</html>

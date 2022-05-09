@@ -1,0 +1,48 @@
+<nav class="w3-sidebar w3-collapse w3-white w3-animate-left" style="z-index:3;width:300px;" id="mySidebar"><br>
+    <div class="w3-container">
+      <a href="#" onclick="w3_close()" class="w3-hide-large w3-right w3-jumbo w3-padding w3-hover-grey" title="close menu">
+        <i class="fa fa-remove"></i>
+      </a>
+      {% if current_user.sex=="M"%}
+      <img src="/static/usermale.jpg" style="width:45%;" class="w3-round"><br><br>
+      {%elif current_user.sex=="F"%}
+      <img src="/static/userfemale.jpg" style="width:45%;" class="w3-round"><br><br>
+      {%else%}
+      <img src="/static/user.jpg" style="width:45%;" class="w3-round"><br><br>
+      {%endif%}
+      <h4><b>{{ name }}</b></h4>
+      {%  if doctorcheck==true %}
+      <p style class="w3-text-grey">Doctor in</p>
+      <ul>
+      {% for specs in spec_name %}
+      <li>{{specs}}</li>
+      {% endfor %}
+      </ul>
+      {% elif servantcheck==true%}
+      <p class="w3-text-grey">Public Servant in</p>
+      <ul>
+        <li>{{cur_dept}}</li>
+      </ul>
+
+      {% elif moderator==true%}
+      <p class="w3-text-grey">MODERATOR</p>
+      {%else%}
+      
+
+      <p class="w3-text-grey">User</p>
+      {% endif %}
+    </div>
+    <div class="w3-bar-block">
+      <a href="{{ url_for('dashboard')}}" class="w3-bar-item w3-button w3-padding w3-text-teal"><i class="fa fa-th-large fa-fw w3-margin-right"></i>MY PROFILE</a> 
+      <a href="{{ url_for('logout') }}" class="w3-bar-item w3-button w3-padding"><i class="fa fa-user fa-fw w3-margin-right"></i>LOG OUT</a>
+    </div>
+    <div class="w3-panel w3-large">
+      <i class="fa fa-facebook-official w3-hover-opacity"></i>
+      <i class="fa fa-instagram w3-hover-opacity"></i>
+      <i class="fa fa-snapchat w3-hover-opacity"></i>
+      <i class="fa fa-pinterest-p w3-hover-opacity"></i>
+      <i class="fa fa-twitter w3-hover-opacity"></i>
+      <i class="fa fa-linkedin w3-hover-opacity"></i>
+    </div>
+  </nav>
+  
